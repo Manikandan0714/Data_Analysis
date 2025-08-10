@@ -1,0 +1,107 @@
+ Project Name
+COVID-19 Data Analytics Dashboard (Offline version)
+Technology Stack: Python, Pandas, Streamlit
+Data Source: Our World in Data (local CSV file)
+
+1️⃣ Data Loading
+
+@st.cache_data
+def load_data():
+    df = pd.read_csv("owid-covid-data.csv", parse_dates=['date'])
+    return df
+Loads the COVID-19 dataset from the local CSV file you downloaded.
+
+parse_dates=['date'] ensures the date column is stored as a proper datetime object for filtering and plotting.
+
+@st.cache_data caches the dataset in memory so that the file is not reloaded every time you change a filter — improves speed.
+
+2️⃣ Dashboard Header
+
+st.title("🦠 COVID-19 Data Analytics Dashboard")
+st.caption("Data Source: Our World in Data (Local File)")
+Displays project title and data source at the top of the page.
+
+3️⃣ Sidebar Country Selector
+
+countries = sorted(df['location'].unique())
+selected_country = st.sidebar.selectbox("Select Country", countries, index=countries.index("India") if "India" in countries else 0)
+Lists all countries in a dropdown (from the location column).
+
+User can select a country; India is pre-selected if available.
+
+Sidebar UI keeps the main area clean.
+
+4️⃣ Latest Metrics Section
+
+latest = country_df.iloc[-1]
+col1.metric("Total Cases", ...)
+col2.metric("Total Deaths", ...)
+col3.metric("Cases per Million", ...)
+col4.metric("Deaths per Million", ...)
+Fetches the most recent date’s data for the selected country.
+
+Displays 4 key metrics using Streamlit's metric cards:
+
+Total Cases
+
+Total Deaths
+
+Cases per Million
+
+Deaths per Million
+
+safe_get() helper ensures missing values don’t crash the app.
+
+5️⃣ Trend Line Chart
+
+chart_data = country_df[['date', 'new_cases', 'new_deaths']].fillna(0)
+chart_data = chart_data.set_index('date')
+st.line_chart(chart_data)
+Shows a time-series chart for daily new cases and daily new deaths.
+
+Missing values are replaced with 0 to avoid gaps in the chart.
+
+Interactive — hover to see exact values.
+
+6️⃣ Data Table View
+
+st.dataframe(
+    country_df[['date', 'total_cases', 'total_deaths', 'total_cases_per_million', 'total_deaths_per_million']].tail(20)
+)
+Displays the latest 20 records in a scrollable interactive table.
+
+Allows the user to view exact numeric values alongside the chart.
+
+7️⃣ Date Filter & Summary
+
+start_date = st.sidebar.date_input(...)
+end_date = st.sidebar.date_input(...)
+mask = (country_df['date'] >= ...) & (country_df['date'] <= ...)
+filtered_df = country_df.loc[mask]
+User can filter data by date range from the sidebar.
+
+Calculates total cases and total deaths for the selected date range.
+
+Displays results dynamically.
+
+✨ Features We Implemented
+
+Here’s the feature checklist:
+
+Offline dataset loading (works without internet).
+
+Caching for faster reloads.
+
+Country selection dropdown (dynamic list).
+
+Latest statistics metric cards for quick overview.
+
+Interactive line chart for trends.
+
+Data table for detailed numeric view.
+
+Date range filter for custom analysis.
+
+Safe handling of missing values to prevent app crashes.
+
+Clean, interactive UI using Streamlit's layout features.
